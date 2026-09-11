@@ -17,11 +17,12 @@ model User {
   email     String   @unique
   name      String?
   password  String
-  role      String   
+  role      Role   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   ownedProjects Project[]
   assignedTasks Task[]
+  refreshTokens RefreshToken[]
 }
 
 model Project {
@@ -40,11 +41,42 @@ model Task {
   id          String   @id @default(cuid())
   title       String
   description String?
-  status      String   @default("todo")
+  priority    TaskPriority
+  status      TaskStatus
   projectId   String
   assigneeId  String?
   project     Project  @relation(fields: [projectId], references: [id])
   assignee    User?    @relation(fields: [assigneeId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+enum Role {
+  ADMIN
+  PROJECT_MANAGER
+  DEVELOPER
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+  OVERDUE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
 }
