@@ -23,6 +23,7 @@ model User {
   ownedProjects Project[]
   assignedTasks Task[]
   refreshTokens RefreshToken[]
+  activities ActivityLog[]
 }
 
 model Project {
@@ -35,10 +36,14 @@ model Project {
   tasks       Task[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([ownerId])
+  @@index([clientId])
 }
 
 model Task {
   id          String   @id @default(cuid())
+  taskNumber  Int      @default(autoincrement())
   title       String
   description String?
   priority    TaskPriority
@@ -49,6 +54,14 @@ model Task {
   assignee    User?    @relation(fields: [assigneeId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  dueDate     DateTime
+  activities  ActivityLog[]
+
+  @@index([projectId])
+  @@index([assigneeId])
+  @@index([status])
+  @@index([priority])
+  @@index([dueDate])
 }
 
 model RefreshToken {
@@ -58,6 +71,21 @@ model RefreshToken {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime
   createdAt DateTime @default(now())
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String   // e.g. "STATUS_CHANGE", "ASSIGNED", "CREATED"
+  details   Json?    // e.g. { "from": "TODO", "to": "IN_PROGRESS" }
+  createdAt DateTime @default(now())
+
+  @@index([taskId])
+  @@index([userId])
+  @@index([createdAt])
 }
 
 enum Role {
