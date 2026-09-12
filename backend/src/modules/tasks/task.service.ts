@@ -1,6 +1,7 @@
 import { prisma } from '../../config/prisma.js';
 import type { JwtUserPayload } from '../../utils/jwt.js';
 import { NotFoundError, ForbiddenError } from '../../utils/errors.js';
+import { socketEmitter } from '../../websockets/socket.emitter.js';
 import type {
   CreateTaskInput,
   UpdateTaskInput,
@@ -72,7 +73,7 @@ export class TaskService {
     });
 
     // Record creation in ActivityLog
-    await prisma.activityLog.create({
+    const log = await prisma.activityLog.create({
       data: {
         taskId: task.id,
         userId: user.userId,
@@ -84,6 +85,27 @@ export class TaskService {
           taskNumber: task.taskNumber,
         },
       },
+    });
+
+    // Real-time broadcast
+    socketEmitter.emitActivityEvent({
+      activityId: log.id,
+      taskId: task.id,
+      taskNumber: task.taskNumber,
+      taskTitle: task.title,
+      projectId: task.projectId,
+      projectName: task.project.name,
+      projectOwnerId: task.project.ownerId,
+      assigneeId: task.assigneeId,
+      userId: user.userId,
+      userName: user.name || user.email.split('@')[0],
+      action: 'CREATED',
+      details: {
+        title: task.title,
+        status: task.status,
+        priority: task.priority,
+      },
+      createdAt: log.createdAt,
     });
 
     return task;
@@ -358,7 +380,7 @@ export class TaskService {
 
     // Record Activity Log on status change
     if (input.status && input.status !== task.status) {
-      await prisma.activityLog.create({
+      const log = await prisma.activityLog.create({
         data: {
           taskId: task.id,
           userId: user.userId,
@@ -371,11 +393,30 @@ export class TaskService {
           },
         },
       });
+
+      socketEmitter.emitActivityEvent({
+        activityId: log.id,
+        taskId: task.id,
+        taskNumber: task.taskNumber,
+        taskTitle: task.title,
+        projectId: task.projectId,
+        projectName: updatedTask.project.name,
+        projectOwnerId: updatedTask.project.ownerId,
+        assigneeId: updatedTask.assigneeId,
+        userId: user.userId,
+        userName: user.name || user.email.split('@')[0],
+        action: 'STATUS_CHANGE',
+        details: {
+          from: task.status,
+          to: input.status,
+        },
+        createdAt: log.createdAt,
+      });
     }
 
     // Record Activity Log on assignee change
     if (input.assigneeId !== undefined && input.assigneeId !== task.assigneeId) {
-      await prisma.activityLog.create({
+      const log = await prisma.activityLog.create({
         data: {
           taskId: task.id,
           userId: user.userId,
@@ -387,6 +428,25 @@ export class TaskService {
             title: task.title,
           },
         },
+      });
+
+      socketEmitter.emitActivityEvent({
+        activityId: log.id,
+        taskId: task.id,
+        taskNumber: task.taskNumber,
+        taskTitle: task.title,
+        projectId: task.projectId,
+        projectName: updatedTask.project.name,
+        projectOwnerId: updatedTask.project.ownerId,
+        assigneeId: updatedTask.assigneeId,
+        userId: user.userId,
+        userName: user.name || user.email.split('@')[0],
+        action: 'ASSIGNED',
+        details: {
+          from: task.assigneeId,
+          to: input.assigneeId,
+        },
+        createdAt: log.createdAt,
       });
     }
 
@@ -439,7 +499,7 @@ export class TaskService {
     });
 
     // Create database-stored ActivityLog entry
-    await prisma.activityLog.create({
+    const log = await prisma.activityLog.create({
       data: {
         taskId: task.id,
         userId: user.userId,
@@ -451,6 +511,26 @@ export class TaskService {
           title: task.title,
         },
       },
+    });
+
+    // Broadcast real-time event to project viewers, PM, Admin, and Developer
+    socketEmitter.emitActivityEvent({
+      activityId: log.id,
+      taskId: task.id,
+      taskNumber: task.taskNumber,
+      taskTitle: task.title,
+      projectId: task.projectId,
+      projectName: updatedTask.project.name,
+      projectOwnerId: updatedTask.project.ownerId,
+      assigneeId: updatedTask.assigneeId,
+      userId: user.userId,
+      userName: user.name || user.email.split('@')[0],
+      action: 'STATUS_CHANGE',
+      details: {
+        from: task.status,
+        to: newStatus,
+      },
+      createdAt: log.createdAt,
     });
 
     return updatedTask;
