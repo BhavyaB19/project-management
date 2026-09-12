@@ -5,6 +5,7 @@ export const redisConnectionOptions = env.REDIS_URL
   ? {
       url: env.REDIS_URL,
       maxRetriesPerRequest: null,
+      ...(env.REDIS_URL.startsWith('rediss://') ? { tls: { rejectUnauthorized: false } } : {}),
     }
   : {
       host: env.REDIS_HOST,
