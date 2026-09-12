@@ -161,8 +161,6 @@ The database comes pre-seeded with accounts for immediate testing. All accounts 
 
 ## 📝 Assessment Submission Explanation (150–250 words)
 
-> *The following text can be submitted directly into the assessment explanation field:*
-
 The most challenging problem was designing the real-time activity feed with strict role-based visibility while ensuring offline users never miss events. Instead of broadcasting events globally or re-querying the database on every action, I implemented room-scoped WebSocket dispatching via Socket.io combined with indexed PostgreSQL persistence.
 
 When a task updates, the event is saved to `ActivityLog` and emitted conditionally: `admin-feed` receives all system activity; `pm-feed:${ownerId}` receives events scoped only to projects owned by that PM; and `user:${assigneeId}` notifies the assigned developer. When a user reconnects after being offline, the client queries `/api/activity?limit=20` to catch up on missed database-persisted events before streaming live socket payloads. This guarantees strict data isolation (developers cannot see other developers' work, and PMs cannot view competing projects) without client-side data leaks.
