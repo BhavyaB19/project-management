@@ -2,8 +2,6 @@
 
 A full-stack, enterprise-grade project management dashboard built for client collaboration, role-based workload tracking, and live activity streaming.
 
-Built for the **Velozity Global Solutions Technical Hiring Assessment**.
-
 ---
 
 ## ⚡ Tech Stack
