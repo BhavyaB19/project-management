@@ -96,6 +96,10 @@ export const initOverdueTaskWorker = () => {
     }
   );
 
+  worker.on('error', (err) => {
+    console.warn('[BullMQ Worker] Redis connection warning (worker waiting for Redis):', err.message);
+  });
+
   worker.on('completed', (job) => {
     console.log(`[BullMQ Worker] Job ${job.id} completed`);
   });

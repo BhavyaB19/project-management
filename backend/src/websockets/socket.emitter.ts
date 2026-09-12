@@ -51,17 +51,20 @@ export class SocketEmitter {
       io.to(`project:${payload.projectId}`).emit('activity:feed', eventData);
       io.to(`project:${payload.projectId}`).emit('task:updated', eventData);
 
-      // 2. Admin Feed: Admin sees activity across all projects globally
+      // 2. Admin: Admin sees activity across all projects globally + live board update
       io.to('admin-feed').emit('activity:feed', eventData);
+      io.to('admin-feed').emit('task:updated', eventData);
 
-      // 3. PM Feed: PM sees activity only from their own projects
+      // 3. PM: PM sees activity only from their own projects + live board update
       if (payload.projectOwnerId) {
         io.to(`pm-feed:${payload.projectOwnerId}`).emit('activity:feed', eventData);
+        io.to(`pm-feed:${payload.projectOwnerId}`).emit('task:updated', eventData);
       }
 
-      // 4. Developer Room: Developer sees activity on tasks assigned to them
+      // 4. Developer: Developer sees activity only on tasks assigned to them + live board update
       if (payload.assigneeId) {
         io.to(`user:${payload.assigneeId}`).emit('activity:feed', eventData);
+        io.to(`user:${payload.assigneeId}`).emit('task:updated', eventData);
       }
     } catch (err) {
       // Avoid failing database transactions if socket server is starting or disconnected

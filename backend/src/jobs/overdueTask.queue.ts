@@ -7,6 +7,11 @@ export const overdueTaskQueue = new Queue(OVERDUE_TASK_QUEUE_NAME, {
   connection: redisConnectionOptions,
 });
 
+overdueTaskQueue.on('error', (err) => {
+  // Gracefully handle local Redis offline without crashing server
+  console.warn('[BullMQ Queue] Redis connection warning (job scheduler waiting for Redis):', err.message);
+});
+
 export const initOverdueTaskScheduler = async () => {
   try {
     // Register a repeatable job scheduler that runs every 60 seconds

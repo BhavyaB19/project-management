@@ -22,7 +22,9 @@ export const getIO = (): Server => {
 export const initSocketServer = (httpServer: HttpServer): Server => {
   const io = new Server(httpServer, {
     cors: {
-      origin: env.CLIENT_URL,
+      origin: (origin, callback) => {
+        callback(null, true);
+      },
       credentials: true,
       methods: ['GET', 'POST'],
     },
