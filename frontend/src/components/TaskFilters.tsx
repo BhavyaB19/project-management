@@ -1,7 +1,6 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, Filter, X, Calendar, AlertCircle } from 'lucide-react';
-import type { TaskStatus, TaskPriority } from '../types/index.ts';
+import { Search, Filter, X, Calendar } from 'lucide-react';
 
 export const TaskFilters: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();

@@ -37,7 +37,6 @@ export const Dashboard: React.FC = () => {
   // State
   const [projects, setProjects] = useState<Project[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [isLoadingTasks, setIsLoadingTasks] = useState(true);
   const [isActivityOpen, setIsActivityOpen] = useState(false);
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
@@ -48,7 +47,6 @@ export const Dashboard: React.FC = () => {
 
   // 1. Fetch Projects accessible to the current user
   const fetchProjects = useCallback(async () => {
-    setIsLoadingProjects(true);
     try {
       const res = await projectsApi.getAll();
       if (res.data?.projects) {
@@ -56,8 +54,6 @@ export const Dashboard: React.FC = () => {
       }
     } catch (err) {
       console.error('[Dashboard] Error loading projects:', err);
-    } finally {
-      setIsLoadingProjects(false);
     }
   }, []);
 

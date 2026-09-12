@@ -1,4 +1,3 @@
-import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.tsx';
 import { SocketProvider } from './context/SocketContext.tsx';

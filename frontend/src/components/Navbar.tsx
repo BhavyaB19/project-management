@@ -10,7 +10,6 @@ import {
   Briefcase,
   Code2,
   CheckCircle2,
-  X,
 } from 'lucide-react';
 import type { Role } from '../types/index.ts';
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, PlusCircle, Calendar, AlertCircle } from 'lucide-react';
+import { X, PlusCircle, AlertCircle } from 'lucide-react';
 import { tasksApi } from '../lib/api.ts';
 import type { TaskPriority, TaskStatus, Project } from '../types/index.ts';
 
@@ -21,7 +21,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('MEDIUM');
-  const [status, setStatus] = useState<TaskStatus>('TODO');
+  const [status] = useState<TaskStatus>('TODO');
   const [dueDate, setDueDate] = useState('');
   const [projectId, setProjectId] = useState(defaultProjectId || projects[0]?.id || '');
   const [assigneeId, setAssigneeId] = useState('');

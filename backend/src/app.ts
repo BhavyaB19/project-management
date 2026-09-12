@@ -32,6 +32,15 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Root Route
+app.get('/', (_req, res) => {
+  res.status(200).json({
+    name: 'Project Management API',
+    status: 'online',
+    health: '/api/health',
+  });
+});
+
 // Health Check
 app.get('/api/health', (_req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });

@@ -3,12 +3,7 @@ import { useAuth } from '../context/AuthContext.tsx';
 import { formatDate } from '../utils/date.ts';
 import {
   Calendar,
-  User as UserIcon,
-  AlertCircle,
-  Clock,
-  CheckCircle2,
-  AlertTriangle,
-  ArrowRight,
+  AlertTriangle
 } from 'lucide-react';
 import type { Task, TaskStatus, TaskPriority } from '../types/index.ts';
 
